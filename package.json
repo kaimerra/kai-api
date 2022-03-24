@@ -1,0 +1,25 @@
+{
+  "name": "kai-api",
+  "version": "1.0.0",
+  "description": "Facilitates connection and interaction with Kaimerra services",
+  "main": "index.ts",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaimerra/kai-api.git"
+  },
+  "keywords": [
+    "kaimerra",
+    "metaverse",
+    "api",
+    "javascript"
+  ],
+  "author": "Ryan Darge",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/kaimerra/kai-api/issues"
+  },
+  "homepage": "https://github.com/kaimerra/kai-api#readme"
+}
