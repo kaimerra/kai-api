@@ -1,4 +1,4 @@
-const remoteWs = "ws://backend.kaimerra.com";
+const remoteWs = "wss://backend.kaimerra.com";
 
 interface LoginMessage {
     bearer: string;
