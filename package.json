@@ -1,6 +1,6 @@
 {
   "name": "@kaimerra-corp/kai-api",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Facilitates connection and interaction with Kaimerra services",
   "main": "dist/index.js",
   "scripts": {
@@ -24,10 +24,7 @@
     "url": "https://github.com/kaimerra/kai-api/issues"
   },
   "homepage": "https://github.com/kaimerra/kai-api#readme",
-  "dependencies": {
-    "@auth0/auth0-react": "^1.9.0",
-    "typescript": "^4.6.2"
-  },
+  "dependencies": {},
   "files": [
     "umd/*",
     "dist/*"
@@ -36,7 +33,8 @@
     "rollup": "^2.70.1",
     "rollup-plugin-babel-minify": "^10.0.0",
     "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0"
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "typescript": "^4.6.2"
   },
   "browser": "umd/kaimerra.min.js"
 }
