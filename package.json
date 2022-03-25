@@ -1,11 +1,11 @@
 {
   "name": "@kaimerra-corp/kai-api",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Facilitates connection and interaction with Kaimerra services",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --build",
-    "test": "test",
+    "build": "tsc -p tsconfig.node.json",
+    "build-umd": "tsc -p tsconfig.browser.json",
     "rollup": "rollup -c"
   },
   "repository": {
@@ -29,7 +29,8 @@
     "typescript": "^4.6.2"
   },
   "files": [
-    "umd/*"
+    "umd/*",
+    "dist/*"
   ],
   "devDependencies": {
     "rollup": "^2.70.1",
