@@ -1,11 +1,12 @@
 {
-  "name": "kai-api",
-  "version": "1.0.0",
+  "name": "@kaimerra-corp/kai-api",
+  "version": "1.0.1",
   "description": "Facilitates connection and interaction with Kaimerra services",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc --build",
-    "test": "test"
+    "test": "test",
+    "rollup": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -29,5 +30,12 @@
   },
   "files": [
     "umd/*"
-  ]
+  ],
+  "devDependencies": {
+    "rollup": "^2.70.1",
+    "rollup-plugin-babel-minify": "^10.0.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "browser": "umd/kaimerra.min.js"
 }
