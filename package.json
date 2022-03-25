@@ -1,8 +1,8 @@
 {
-  "name": "kai-api",
-  "version": "1.0.0",
+  "name": "@kaimerra-corp/kai-api",
+  "version": "1.0.2",
   "description": "Facilitates connection and interaction with Kaimerra services",
-  "main": "dist/index.js",
+  "main": "umd/index.js",
   "scripts": {
     "build": "tsc --build",
     "test": "test"
