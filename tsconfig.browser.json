@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "umd",
     "esModuleInterop": true,
     "target": "es6",
     "sourceMap": true,
     "declaration": true,
-    "outDir": "dist"
+    "outDir": "umd",
+    "moduleResolution": "node"
   },
-  "lib": ["es2015"],
+  "lib": ["es2015", "dom"],
   "include": ["index.ts"]
 }
