@@ -5,7 +5,8 @@
     "target": "es6",
     "sourceMap": true,
     "declaration": true,
-    "outDir": "umd"
+    "outDir": "umd",
+    "moduleResolution": "node"
   },
   "lib": ["es2015", "dom"],
   "include": ["index.ts"]
