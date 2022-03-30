@@ -1,13 +1,11 @@
 import { EventEmitter } from "eventemitter3"
 
-type counterId = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
-
 interface LoginMessage {
   bearer: string;
 }
 
 export interface CounterMessage {
-  id: counterId | string;
+  id: string;
   count?: number;
   inc?: number;
 }
@@ -26,9 +24,10 @@ interface GenericWebSocket {
 }
 
 export declare interface Kai {
-  on(event: counterId, fn: (absolute: number, delta: number) => void, context?: any): this;
   on(event: 'any', fn: (messages: Map<string, number>) => void, context?:any): this;
-  on(event: string, fn: () => void, context?: any): this
+  on(event: 'open', fn: () => void, context?: any): this
+  on(event: 'close', fn: () => void, context?: any): this
+  on(event: string, fn: (absolute: number, delta: number) => void, context?: any): this;
 }
 
 export class Kai extends EventEmitter {
@@ -37,48 +36,42 @@ export class Kai extends EventEmitter {
   counters: Map<string, number> = new Map();
 
   constructor (websocket: GenericWebSocket, bearer: string) {
-      super();
-      this.websocket = websocket;
-      this.bearer = bearer;
+    super();
+    this.websocket = websocket;
+    this.bearer = bearer;
 
-    try {
-        this.websocket.addEventListener('message', (request: MessageEvent) => {
-            const data = request.data;
-            const message = JSON.parse(data.toString());
-            switch (message.messageType) {
-              case "counter": {
-                const oldCounters = new Map(this.counters);
-                const updates = message.counter as CounterMessage[];
-                for (const update of updates) {
-                  this.counters.set(update.id, update.count);
-                  this.emit(update.id, update.count, update.count - oldCounters.get(update.id));
-                }
-                this.emit("any", this.counters);
-                break;
-              }
-            }
-          });
-    
-          this.websocket.addEventListener('open', (event: Event) => {
-            const loginMessage: Message = {
-              messageType: "login",
-              login: {
-                bearer: this.bearer,
-              },
-            };
-            websocket.send(JSON.stringify(loginMessage));
-            this.emit("open");
-          });
-    
-          this.websocket.addEventListener('close', (event: CloseEvent) => {
-            console.log(event);
-            this.emit("close")
-          });
-    } catch (error: any) {
-        console.log("Yeeouch!");
-        console.log(error);
+    this.websocket.addEventListener('message', (request: MessageEvent) => {
+      const data = request.data;
+      const message = JSON.parse(data.toString());
+      switch (message.messageType) {
+        case "counter": {
+          const oldCounters = new Map(this.counters);
+          const updates = message.counter as CounterMessage[];
+          for (const update of updates) {
+            this.counters.set(update.id, update.count);
+            this.emit(update.id, update.count, update.count - oldCounters.get(update.id));
+          }
+          this.emit("any", this.counters);
+          break;
+        }
       }
-      
+    });
+
+    this.websocket.addEventListener('open', (event: Event) => {
+      const loginMessage: Message = {
+        messageType: "login",
+        login: {
+          bearer: this.bearer,
+        },
+      };
+      websocket.send(JSON.stringify(loginMessage));
+      this.emit("open");
+    });
+
+    this.websocket.addEventListener('close', (event: CloseEvent) => {
+      console.log(event);
+      this.emit("close")
+    });
   }
 
   disconnect() {
@@ -116,7 +109,7 @@ export class Kai extends EventEmitter {
    * @param counterNumber the counter id
    * @returns the latest value for specified counter
    */
-  get(counterNumber: counterId) {
+  get(counterNumber: string) {
     return this.counters.get(counterNumber);
   }
 }
