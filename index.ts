@@ -1,14 +1,13 @@
-const remoteWs = "wss://backend.kaimerra.com";
+import { EventEmitter } from "./node_modules/eventemitter3/index";
 
 type counterId = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
-type eventType = counterId | "any" | "close";
 
 interface LoginMessage {
   bearer: string;
 }
 
 export interface CounterMessage {
-  id: string;
+  id: counterId | string;
   count?: number;
   inc?: number;
 }
@@ -19,76 +18,66 @@ interface Message {
   counter?: CounterMessage[];
 }
 
-export class Kai {
+interface GenericWebSocket {
+  readyState: number;
+  addEventListener(eventName: string, listener: Function): void;
+  send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void;
+  close(): void;
+}
+
+export class Kai extends EventEmitter {
   bearer: string;
-  websocket: WebSocket;
-  counters: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  listeners: Map<String, Map<number, Function>> = new Map();
-  listenerCounter: number = 0;
+  websocket: GenericWebSocket;
+  counters: Map<string, number> = new Map();
 
-  private connectBackEnd() {
+  constructor (websocket: GenericWebSocket, bearer: string) {
+      super();
+      this.websocket = websocket;
+      this.bearer = bearer;
+
     try {
-      console.log("client trying to connect " + Date.now());
-      const client = new WebSocket(`${remoteWs}/ws`);
-
-      client.onmessage = (request: MessageEvent) => {
-        const data = request.data;
-        const message = JSON.parse(data.toString());
-        switch (message.messageType) {
-          case "counter": {
-            const oldCounters = this.counters;
-            const updates = message.counter as CounterMessage[];
-            for (const update of updates) {
-              const id = parseInt(update.id);
-              this.counters[id] = update.count;
-              if (this.listeners.has(update.id)) {
-                this.listeners.get(update.id).forEach((listener) => {
-                  //Pass in the new absolute value and delta change
-                  listener(update.count, update.count - oldCounters[id]);
-                });
+        this.websocket.addEventListener('message', (request: MessageEvent) => {
+            const data = request.data;
+            const message = JSON.parse(data.toString());
+            switch (message.messageType) {
+              case "counter": {
+                const oldCounters = new Map(this.counters);
+                const updates = message.counter as CounterMessage[];
+                for (const update of updates) {
+                  this.counters.set(update.id, update.count);
+                  this.emit(update.id, update.count, update.count - oldCounters.get(update.id));
+                }
+                this.emit("any", this.counters);
+                break;
               }
             }
-            if (this.listeners.has("any")) {
-              this.listeners
-                .get("any")
-                .forEach((listener) => listener(this.counters));
-            }
-            break;
-          }
-        }
-      };
-
-      client.onopen = (event: Event) => {
-        const loginMessage: Message = {
-          messageType: "login",
-          login: {
-            bearer: this.bearer,
-          },
-        };
-        client.send(JSON.stringify(loginMessage));
-      };
-
-      client.onclose = (event: CloseEvent) => {
-        const closeCallbacks = this.listeners.get("close") || new Map();
-        closeCallbacks.forEach((callback: Function) => {
-          callback(event);
-        });
-      };
-
-      return client;
+          });
+    
+          this.websocket.addEventListener('open', (event: Event) => {
+            const loginMessage: Message = {
+              messageType: "login",
+              login: {
+                bearer: this.bearer,
+              },
+            };
+            websocket.send(JSON.stringify(loginMessage));
+            this.emit("open");
+          });
+    
+          this.websocket.addEventListener('close', (event: CloseEvent) => this.emit("close"));
     } catch (error: any) {
-      console.log("Yeeouch!");
-      console.log(error);
-    }
-  }
-
-  connect(bearer: string) {
-    this.bearer = bearer;
-    this.websocket = this.connectBackEnd();
+        console.log("Yeeouch!");
+        console.log(error);
+      }
+      
   }
 
   disconnect() {
     this.websocket.close();
+  }
+
+  isConnected() : boolean {
+      return this.websocket.readyState == WebSocket.OPEN;
   }
 
   /**
@@ -102,39 +91,15 @@ export class Kai {
       counter: [{ id: counter, inc: increment }],
     };
     this.websocket.send(JSON.stringify(request));
-  }
-
-  /**
-   * Register callbacks for various counter/network events.
-   *
-   * for individual counter events, the callback parameters are:
-   * callback(newAbsoluteValue: number, deltaChange: number)
-   *
-   * for "any" counter events, the callback parameters are:
-   * callback(latestCounterValues: number[]) //Array of all counters
-   *
-   * for "close" network events, the callback parameters are:
-   * callback(event: CloseEvent)
-   *
-   * @param event the name of the event to register a callback for
-   * @param callback the callback to be executed when a corresponding event is received
-   * @returns a function to be called to deregister this callback
-   */
-  on(event: eventType, callback: Function): Function {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Map());
-    }
-    const handle = this.listenerCounter++;
-    this.listeners.get(event).set(handle, callback);
-    return () => this.listeners.get(event).delete(handle);
+    this.counters.set(counter, this.counters.get(counter) + increment);
   }
 
   /**
    * Get the current state of the counters
    * @returns a copy of the latest state of all counters
    */
-  getCounters(): number[] {
-    return this.counters.slice();
+  getCounters(): Map<string, number> {
+    return new Map(this.counters);
   }
 
   /**
@@ -143,13 +108,6 @@ export class Kai {
    * @returns the latest value for specified counter
    */
   get(counterNumber: counterId) {
-    return this.counters[parseInt(counterNumber)];
-  }
-
-  /**
-   * Unregisters all listeners/callbacks for events
-   */
-  removeAllListeners(): void {
-    this.listeners.clear();
+    return this.counters.get(counterNumber);
   }
 }
