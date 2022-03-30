@@ -1,3 +1,5 @@
+import createAuth0Client, { Auth0Client } from "@auth0/auth0-spa-js";
+
 const remoteWs = "wss://backend.kaimerra.com";
 
 interface LoginMessage {
@@ -97,6 +99,41 @@ export class Kai {
       this.onMessage = callback;
     } else if (event === "close") {
       this.onClose = callback;
+    }
+  }
+}
+
+export class KaiAuth {
+  auth0: Auth0Client;
+
+  static async AuthInBrowser() {
+    return new KaiAuth(
+      await createAuth0Client({
+        domain: "dev-ajfk-6oq.us.auth0.com",
+        client_id: "7RXhqquSD7dPdz5tq82ZkYBhahEGf3T3",
+      })
+    );
+  }
+
+  constructor(auth0: Auth0Client) {
+    this.auth0 = auth0;
+  }
+
+  async authInBrowser(): Promise<string> {
+    this.auth0.loginWithPopup();
+    return await this.auth0.getTokenWithPopup({
+      audience: "https://backend.kaimerra.com",
+      scope: "user",
+    });
+  }
+
+  async isAuthed() {
+    return await this.auth0.isAuthenticated();
+  }
+
+  async logout(): Promise<void> {
+    if (this.auth0) {
+      await this.auth0.logout();
     }
   }
 }
