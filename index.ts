@@ -1,4 +1,4 @@
-import { EventEmitter } from "./node_modules/eventemitter3/index";
+import { EventEmitter } from "eventemitter3"
 
 type counterId = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -64,7 +64,10 @@ export class Kai extends EventEmitter {
             this.emit("open");
           });
     
-          this.websocket.addEventListener('close', (event: CloseEvent) => this.emit("close"));
+          this.websocket.addEventListener('close', (event: CloseEvent) => {
+            console.log(event);
+            this.emit("close")
+          });
     } catch (error: any) {
         console.log("Yeeouch!");
         console.log(error);
