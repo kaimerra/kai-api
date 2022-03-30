@@ -43,6 +43,7 @@
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
   },
+  "browser": "dist/kaimerra.min.js",
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.20.1",
     "buffer": "^6.0.3"
