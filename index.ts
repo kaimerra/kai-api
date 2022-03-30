@@ -25,6 +25,12 @@ interface GenericWebSocket {
   close(): void;
 }
 
+export declare interface Kai {
+  on(event: counterId, fn: (absolute: number, delta: number) => void, context?: any): this;
+  on(event: 'any', fn: (messages: Map<string, number>) => void, context?:any): this;
+  on(event: string, fn: () => void, context?: any): this
+}
+
 export class Kai extends EventEmitter {
   bearer: string;
   websocket: GenericWebSocket;
