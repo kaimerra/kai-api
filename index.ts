@@ -47,10 +47,22 @@ export class Kai extends EventEmitter {
   websocket: GenericWebSocket;
   counters: Map<string, number> = new Map();
 
-  constructor(websocket: GenericWebSocket, bearer: string) {
+  constructor(websocket?: GenericWebSocket, bearer?: string) {
     super();
     this.websocket = websocket;
     this.bearer = bearer;
+
+    this.configureWebsocket();
+  }
+
+  async configureWebsocket() {
+    if(this.bearer == null || this.bearer == undefined) {
+      this.bearer = await Kai.getTokenFromKaipod();
+    }
+    
+    if(this.websocket == null) {
+      this.websocket = new WebSocket("wss://backend.kaimerra.com/ws");
+    }
 
     this.websocket.addEventListener("message", (request: MessageEvent) => {
       const data = request.data;
@@ -80,7 +92,8 @@ export class Kai extends EventEmitter {
           bearer: this.bearer,
         },
       };
-      websocket.send(JSON.stringify(loginMessage));
+      console.log("login message is", loginMessage);
+      this.websocket.send(JSON.stringify(loginMessage));
       this.emit("open");
     });
 
@@ -88,6 +101,7 @@ export class Kai extends EventEmitter {
       console.log("Closed:", event.reason);
       this.emit("close");
     });
+    console.log("done configurating: ");
   }
 
   disconnect() {
