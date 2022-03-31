@@ -4,4 +4,4 @@
 
 1. npm run build
 2. npm run rollup
-3. npm run publish
+3. npm publish
