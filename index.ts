@@ -1,4 +1,4 @@
-import { EventEmitter } from "eventemitter3"
+import { EventEmitter } from "eventemitter3";
 
 interface LoginMessage {
   bearer: string;
@@ -24,10 +24,18 @@ interface GenericWebSocket {
 }
 
 export declare interface Kai {
-  on(event: 'any', fn: (messages: Map<string, number>) => void, context?:any): this;
-  on(event: 'open', fn: () => void, context?: any): this
-  on(event: 'close', fn: () => void, context?: any): this
-  on(event: string, fn: (absolute: number, delta: number) => void, context?: any): this;
+  on(
+    event: "any",
+    fn: (messages: Map<string, number>) => void,
+    context?: any
+  ): this;
+  on(event: "open", fn: () => void, context?: any): this;
+  on(event: "close", fn: () => void, context?: any): this;
+  on(
+    event: string,
+    fn: (absolute: number, delta: number) => void,
+    context?: any
+  ): this;
 }
 
 export class Kai extends EventEmitter {
@@ -35,12 +43,12 @@ export class Kai extends EventEmitter {
   websocket: GenericWebSocket;
   counters: Map<string, number> = new Map();
 
-  constructor (websocket: GenericWebSocket, bearer: string) {
+  constructor(websocket: GenericWebSocket, bearer: string) {
     super();
     this.websocket = websocket;
     this.bearer = bearer;
 
-    this.websocket.addEventListener('message', (request: MessageEvent) => {
+    this.websocket.addEventListener("message", (request: MessageEvent) => {
       const data = request.data;
       const message = JSON.parse(data.toString());
       switch (message.messageType) {
@@ -49,7 +57,11 @@ export class Kai extends EventEmitter {
           const updates = message.counter as CounterMessage[];
           for (const update of updates) {
             this.counters.set(update.id, update.count);
-            this.emit(update.id, update.count, update.count - oldCounters.get(update.id));
+            this.emit(
+              update.id,
+              update.count,
+              update.count - oldCounters.get(update.id)
+            );
           }
           this.emit("any", this.counters);
           break;
@@ -57,7 +69,7 @@ export class Kai extends EventEmitter {
       }
     });
 
-    this.websocket.addEventListener('open', (event: Event) => {
+    this.websocket.addEventListener("open", (event: Event) => {
       const loginMessage: Message = {
         messageType: "login",
         login: {
@@ -68,9 +80,9 @@ export class Kai extends EventEmitter {
       this.emit("open");
     });
 
-    this.websocket.addEventListener('close', (event: CloseEvent) => {
+    this.websocket.addEventListener("close", (event: CloseEvent) => {
       console.log("Closed:", event.reason);
-      this.emit("close")
+      this.emit("close");
     });
   }
 
@@ -78,8 +90,8 @@ export class Kai extends EventEmitter {
     this.websocket.close();
   }
 
-  isConnected() : boolean {
-      return this.websocket.readyState == WebSocket.OPEN;
+  isConnected(): boolean {
+    return this.websocket.readyState == WebSocket.OPEN;
   }
 
   /**
@@ -112,5 +124,13 @@ export class Kai extends EventEmitter {
    */
   get(counterNumber: string) {
     return this.counters.get(counterNumber);
+  }
+
+  /**
+   * Get the auth token from a locally running kaipod.
+   */
+  async getTokenFromKaipod(): Promise<string> {
+    const response = await fetch("http://localhost:3001/auth");
+    return await response.json();
   }
 }
