@@ -5,7 +5,7 @@ import pkg from "./package.json";
 
 export default [
   {
-    input: "umd/index.js",
+    input: "dist/index.js",
     output: {
       name: "Kai",
       file: pkg.browser,
