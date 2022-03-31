@@ -23,6 +23,10 @@ interface GenericWebSocket {
   close(): void;
 }
 
+interface KaipodTokenResponse {
+  token: string;
+}
+
 export declare interface Kai {
   on(
     event: "any",
@@ -119,18 +123,22 @@ export class Kai extends EventEmitter {
 
   /**
    * Get the latest value for a specified counter
-   * @param counterNumber the counter id
+   * @param counter the counter id
    * @returns the latest value for specified counter
    */
-  get(counterNumber: string) {
-    return this.counters.get(counterNumber);
+  getCounter(counter: string) {
+    return this.counters.get(counter);
   }
 
   /**
-   * Get the auth token from a locally running kaipod.
+   * Get the bearer token from a locally running kaipod. Kaipod
+   * must be authed and running to return this response.
+   * @returns a bearer token for use in constructing a new Kai.
    */
-  async getTokenFromKaipod(): Promise<string> {
-    const response = await fetch("http://localhost:3001/auth");
-    return await response.json();
+
+  static async getTokenFromKaipod(): Promise<string> {
+    const response = await fetch("http://localhost:3002/auth");
+    const tokenResponse: KaipodTokenResponse = await response.json();
+    return tokenResponse.token;
   }
 }
