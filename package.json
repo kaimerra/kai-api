@@ -1,5 +1,5 @@
 {
-  "name": "kai-api",
+  "name": "@kaimerra-corp/kai-api",
   "version": "1.0.5",
   "description": "Facilitates connection and interaction with Kaimerra services",
   "main": "dist/index.js",

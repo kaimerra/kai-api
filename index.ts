@@ -69,7 +69,7 @@ export class Kai extends EventEmitter {
     });
 
     this.websocket.addEventListener('close', (event: CloseEvent) => {
-      console.log(event);
+      console.log("Closed:", event.reason);
       this.emit("close")
     });
   }
@@ -87,13 +87,14 @@ export class Kai extends EventEmitter {
    * @param counter the counter to modify, can be negative.
    * @param increment the amount to increment the counter by
    */
-  incrementCounter(counter: string, increment: number) {
+  incrementCounter(counter: string, increment: number): number {
     const request: Message = {
       messageType: "counter",
       counter: [{ id: counter, inc: increment }],
     };
     this.websocket.send(JSON.stringify(request));
     this.counters.set(counter, this.counters.get(counter) + increment);
+    return this.counters.get(counter);
   }
 
   /**
