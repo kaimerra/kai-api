@@ -5,13 +5,13 @@
 ```
 <html>
   <body>
-    <button id="logout">Click Me</button>;
+    <button id="counter">Click Me</button>;
     <script src="https://unpkg.com/@kaimerra-corp/kai-api@1.0.10/dist/kaimerra.min.js"></script>
     <script>
       (async () => {
         const kai = await Kai.Kai.createForBrowser();
 
-        document.getElementById("logout").onclick = () => {
+        document.getElementById("counter").onclick = () => {
           console.log(kai.getCounter("0"));
         };
       })();
