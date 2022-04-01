@@ -67,20 +67,20 @@ test("validate rate-limiting", () => {
 
   //Both increments should count against rate limit, resulting in 60 here
   result = kai.incrementCounter("0", 60);
-  expect(result).toEqual(58);
+  expect(result).toEqual(8);
 
   //Subsequent additions and subtractions should be ignored
   result = kai.incrementCounter("0", 100);
-  expect(result).toEqual(58);
+  expect(result).toEqual(8);
   result = kai.incrementCounter("0", -100);
-  expect(result).toEqual(58);
+  expect(result).toEqual(8);
 
   //Let's pretend time skipped ahead a minute
   jest.useFakeTimers().setSystemTime(Date.now() + 60001); 
 
   //Should be able to increment again now 
   result = kai.incrementCounter("0", 1);
-  expect(result).toEqual(59);
+  expect(result).toEqual(9);
 
   //But only up to 60, total
   result = kai.incrementCounter("0", -60);

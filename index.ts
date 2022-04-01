@@ -43,14 +43,14 @@ export declare interface Kai {
   ): this;
 }
 
-export const RATE_LIMIT: number = 60;
-export const TIME_LIMIT: number = 60000;
+export const RATE_LIMIT: number = 10;
+export const TIME_LIMIT: number = 1000;
 
 export class Kai extends EventEmitter {
   bearer: string;
   websocket: GenericWebSocket;
   counters: Map<string, number> = new Map();
-  rates: Map<String, RateLimiter> = new Map();
+  rateLimiter: RateLimiter = new RateLimiter(RATE_LIMIT, TIME_LIMIT);
   lastClearTime: number;
 
   static async createForBrowser() {
@@ -78,7 +78,6 @@ export class Kai extends EventEmitter {
           const updates = message.counter as CounterMessage[];
           for (const update of updates) {
             this.counters.set(update.id, update.count);
-            this.rates.set(update.id, new RateLimiter(RATE_LIMIT, TIME_LIMIT));
             this.emit(
               update.id,
               update.count,
@@ -123,9 +122,8 @@ export class Kai extends EventEmitter {
    * @param increment the amount to increment the counter by
    */
   incrementCounter(counter: string, increment: number): number {
-    const limiter = this.rates.get(counter);
-    if (limiter.ready()) {
-      const approvedLimit = limiter.use(increment);
+    if (this.rateLimiter.ready()) {
+      const approvedLimit = this.rateLimiter.use(increment);
       return this._incrementCounter(counter, approvedLimit);
     } else {
       return this.counters.get(counter);
