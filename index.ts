@@ -1,4 +1,5 @@
 import { EventEmitter } from "eventemitter3";
+import { RateLimiter} from "./rate-limit";
 
 interface LoginMessage {
   bearer: string;
@@ -43,12 +44,13 @@ export declare interface Kai {
 }
 
 export const RATE_LIMIT: number = 60;
+export const TIME_LIMIT: number = 60000;
 
 export class Kai extends EventEmitter {
   bearer: string;
   websocket: GenericWebSocket;
   counters: Map<string, number> = new Map();
-  rates: Map<String, number> = new Map();
+  rates: Map<String, RateLimiter> = new Map();
   lastClearTime: number;
 
   static async createForBrowser() {
@@ -76,6 +78,7 @@ export class Kai extends EventEmitter {
           const updates = message.counter as CounterMessage[];
           for (const update of updates) {
             this.counters.set(update.id, update.count);
+            this.rates.set(update.id, new RateLimiter(RATE_LIMIT, TIME_LIMIT));
             this.emit(
               update.id,
               update.count,
@@ -120,31 +123,22 @@ export class Kai extends EventEmitter {
    * @param increment the amount to increment the counter by
    */
   incrementCounter(counter: string, increment: number): number {
-    if(this.lastClearTime + 60000 < Date.now()) {
-      this.rates.clear();
-      this.lastClearTime = Date.now();
+    const limiter = this.rates.get(counter);
+    if (limiter.ready()) {
+      const approvedLimit = limiter.use(increment);
+      return this._incrementCounter(counter, approvedLimit);
     } else {
-      if(this.rates.get(counter) > RATE_LIMIT) {
-        //Short-circuit if we've exceeded the rate limit
-        return this.counters.get(counter);
-      }
+      return this.counters.get(counter);
     }
+  }
 
-    //Apply bounding to increment in case it would put the change over the rate limit
-    let boundedIncrement = increment;
-    const currentRate = this.rates.get(counter) || 0;
-    const newRate = currentRate + Math.abs(increment);
-    if(newRate > RATE_LIMIT) {
-      boundedIncrement += (newRate - RATE_LIMIT) * (increment > 0 ? -1 : 1);
-    }
-    
+  private _incrementCounter(counter: string, increment: number) {
     const request: Message = {
       messageType: "counter",
-      counter: [{ id: counter, inc: boundedIncrement }],
+      counter: [{ id: counter, inc: increment }],
     };
     this.websocket.send(JSON.stringify(request));
-    this.counters.set(counter, this.counters.get(counter) + boundedIncrement);
-    this.rates.set(counter, currentRate + Math.abs(boundedIncrement));
+    this.counters.set(counter, this.counters.get(counter) + increment);
     return this.counters.get(counter);
   }
 
