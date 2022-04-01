@@ -2,6 +2,7 @@
 
 ## Minimal HTML + Script Tag Example
 
+```
 <html>
   <body>
     <button id="logout">Click Me</button>;
@@ -18,6 +19,7 @@
 
   </body>
 </html>
+```
 
 ## To publish
 
