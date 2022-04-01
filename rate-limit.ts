@@ -12,7 +12,12 @@ export class RateLimiter {
     }
 
     ready(): boolean {
-        return this.currentRate < this.rateLimit || this.lastClearTime + this.timeLimit < Date.now();
+        const result = this.currentRate < this.rateLimit || this.lastClearTime + this.timeLimit < Date.now();
+        if (!result) {
+            const waitTime = this.lastClearTime + this.timeLimit - Date.now();
+            console.log("attempt to exceed the rate limit denied, please wait " + waitTime + " ms");
+        }
+        return result;
     }
     
     use(rate: number): number {
@@ -22,6 +27,8 @@ export class RateLimiter {
         } else {
             if(this.currentRate >= this.rateLimit) {
                 //Short-circuit if we're at the rate limit
+                const waitTime = this.lastClearTime + this.timeLimit - Date.now();
+                console.log("attempt to exceed the rate limit denied, please wait " + waitTime + " ms");
                 return 0;
             }
         }
