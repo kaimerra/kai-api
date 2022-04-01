@@ -91,7 +91,6 @@ export class Kai extends EventEmitter {
           bearer: this.bearer,
         },
       };
-      console.log("login message is", loginMessage);
       this.websocket.send(JSON.stringify(loginMessage));
       this.emit("open");
     });
@@ -100,7 +99,6 @@ export class Kai extends EventEmitter {
       console.log("Closed:", event.reason);
       this.emit("close");
     });
-    console.log("done configurating: ");
   }
 
   disconnect() {
