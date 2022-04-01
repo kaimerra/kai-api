@@ -1,5 +1,24 @@
 # Kai-API
 
+## Minimal HTML + Script Tag Example
+
+<html>
+  <body>
+    <button id="logout">Click Me</button>;
+    <script src="https://unpkg.com/@kaimerra-corp/kai-api@1.0.10/dist/kaimerra.min.js"></script>
+    <script>
+      (async () => {
+        const kai = await Kai.Kai.createForBrowser();
+
+        document.getElementById("logout").onclick = () => {
+          console.log(kai.getCounter("0"));
+        };
+      })();
+    </script>
+
+  </body>
+</html>
+
 ## To publish
 
 1. npm run build
