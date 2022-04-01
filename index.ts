@@ -42,10 +42,14 @@ export declare interface Kai {
   ): this;
 }
 
+export const RATE_LIMIT: number = 60;
+
 export class Kai extends EventEmitter {
   bearer: string;
   websocket: GenericWebSocket;
   counters: Map<string, number> = new Map();
+  rates: Map<String, number> = new Map();
+  lastClearTime: number;
 
   static async createForBrowser() {
     const bearer = await Kai.getTokenFromKaipod();
@@ -93,6 +97,7 @@ export class Kai extends EventEmitter {
       };
       this.websocket.send(JSON.stringify(loginMessage));
       this.emit("open");
+      this.lastClearTime = Date.now();
     });
 
     this.websocket.addEventListener("close", (event: CloseEvent) => {
@@ -115,12 +120,31 @@ export class Kai extends EventEmitter {
    * @param increment the amount to increment the counter by
    */
   incrementCounter(counter: string, increment: number): number {
+    if(this.lastClearTime + 60000 < Date.now()) {
+      this.rates.clear();
+      this.lastClearTime = Date.now();
+    } else {
+      if(this.rates.get(counter) > RATE_LIMIT) {
+        //Short-circuit if we've exceeded the rate limit
+        return this.counters.get(counter);
+      }
+    }
+
+    //Apply bounding to increment in case it would put the change over the rate limit
+    let boundedIncrement = increment;
+    const currentRate = this.rates.get(counter) || 0;
+    const newRate = currentRate + Math.abs(increment);
+    if(newRate > RATE_LIMIT) {
+      boundedIncrement += (newRate - RATE_LIMIT) * (increment > 0 ? -1 : 1);
+    }
+    
     const request: Message = {
       messageType: "counter",
-      counter: [{ id: counter, inc: increment }],
+      counter: [{ id: counter, inc: boundedIncrement }],
     };
     this.websocket.send(JSON.stringify(request));
-    this.counters.set(counter, this.counters.get(counter) + increment);
+    this.counters.set(counter, this.counters.get(counter) + boundedIncrement);
+    this.rates.set(counter, currentRate + Math.abs(boundedIncrement));
     return this.counters.get(counter);
   }
 
