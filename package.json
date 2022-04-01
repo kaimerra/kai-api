@@ -1,6 +1,6 @@
 {
   "name": "@kaimerra-corp/kai-api",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Facilitates connection and interaction with Kaimerra services",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

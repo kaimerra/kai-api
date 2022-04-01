@@ -1,5 +1,5 @@
 import { EventEmitter } from "eventemitter3";
-import { RateLimiter} from "./rate-limit";
+import { RateLimiter } from "./rate-limit";
 
 interface LoginMessage {
   bearer: string;
@@ -52,12 +52,19 @@ export class Kai extends EventEmitter {
   counters: Map<string, number> = new Map();
   rateLimiter: RateLimiter = new RateLimiter(RATE_LIMIT, TIME_LIMIT);
   lastClearTime: number;
+  resolveReady: (ready: boolean) => void;
+  readyPromise: Promise<boolean>;
 
   static async createForBrowser() {
     const bearer = await Kai.getTokenFromKaipod();
     const websocket = new WebSocket("wss://backend.kaimerra.com/ws");
 
-    return new Kai(websocket, bearer);
+    const kai = new Kai(websocket, bearer);
+
+    // By default, we we will wait for the api to be ready.
+    await kai.ready();
+
+    return kai;
   }
 
   constructor(websocket: GenericWebSocket, bearer: string) {
@@ -65,7 +72,15 @@ export class Kai extends EventEmitter {
     this.websocket = websocket;
     this.bearer = bearer;
 
+    this.readyPromise = new Promise((resolve) => {
+      this.resolveReady = resolve;
+    });
+
     this.configureWebsocket();
+  }
+
+  async ready(): Promise<boolean> {
+    return await this.readyPromise;
   }
 
   configureWebsocket() {
@@ -74,6 +89,10 @@ export class Kai extends EventEmitter {
       const message = JSON.parse(data.toString());
       switch (message.messageType) {
         case "counter": {
+          // We will declare ourselves ready.
+          // Re-resolving a promise is considered ok.
+          this.resolveReady(true);
+
           const oldCounters = new Map(this.counters);
           const updates = message.counter as CounterMessage[];
           for (const update of updates) {
