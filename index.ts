@@ -47,7 +47,14 @@ export class Kai extends EventEmitter {
   websocket: GenericWebSocket;
   counters: Map<string, number> = new Map();
 
-  constructor(websocket?: GenericWebSocket, bearer?: string) {
+  static async createForBrowser() {
+    const bearer = await Kai.getTokenFromKaipod();
+    const websocket = new WebSocket("wss://backend.kaimerra.com/ws");
+
+    return new Kai(websocket, bearer);
+  }
+
+  constructor(websocket: GenericWebSocket, bearer: string) {
     super();
     this.websocket = websocket;
     this.bearer = bearer;
@@ -55,15 +62,7 @@ export class Kai extends EventEmitter {
     this.configureWebsocket();
   }
 
-  async configureWebsocket() {
-    if(this.bearer == null || this.bearer == undefined) {
-      this.bearer = await Kai.getTokenFromKaipod();
-    }
-    
-    if(this.websocket == null) {
-      this.websocket = new WebSocket("wss://backend.kaimerra.com/ws");
-    }
-
+  configureWebsocket() {
     this.websocket.addEventListener("message", (request: MessageEvent) => {
       const data = request.data;
       const message = JSON.parse(data.toString());
