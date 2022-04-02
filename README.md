@@ -58,6 +58,9 @@ const kai = await Kai.createForBrowser()
 
 you must have your Kaipod running and logged in.
 
+![You will see your username and a check mark in the bottom left corner of kaipod if you're logged in!](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/7115d5be-9303-4999-bd10-5a3579eb3cda/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220402%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220402T172223Z&X-Amz-Expires=86400&X-Amz-Signature=4a7fed5f7d118d146dc1443b05f4ac7fa6545a6cc147848e0289df7410d1f3fb&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Untitled.png%22&x-id=GetObject)
+
+
 ### Counters
 
 Currently the shared Kaimerra exposes an API for counters. There are a set of methods that allow you
