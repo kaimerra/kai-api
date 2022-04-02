@@ -41,6 +41,31 @@ You can also access the API via a script tag.
 </html>
 ```
 
+## Using the API
+
+nitty-gritty info can be found in: https://kaimerra.github.io/kai-api/
+
+### Authentication
+
+The API talks to 2 systems, a running Kaipod instance on your computer and the Kaimerra backend.
+
+Before you call
+
+```
+const kai = await Kai.createForBrowser()
+```
+
+you must have your Kaipod running and logged in.
+
+### Counters
+
+Currently the shared Kaimerra exposes an API for counters. There are a set of methods that allow you 
+to get the values of counters and set them.
+
+```
+// Getting the current value of a counter:
+kai.getCounter("fire"); // returns a number.
+
 ## Internal Development
 ### To publish
 
