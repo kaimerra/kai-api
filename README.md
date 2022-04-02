@@ -68,7 +68,7 @@ to get the values of counters and set them.
 kai.getCounter("fire"); // returns a number.
 
 // Updating a counter:
-kai.incrementCounter("fire", 100); // adds 100 to the value of fire.
+kai.incrementCounter("fire", 10); // adds 10 to the value of fire.
 
 // Subscribing to events:
 kai.on("any", counters) {
@@ -78,6 +78,9 @@ kai.on("any", counters) {
   }
 }
 ```
+Currently, to prevent counters from rapdily spiraling out of control, the API will allow you to **increment or decrement up to 10 points across all counters each second.** 
+If you try to increment by more than 10 at a time, your changes will be rate-limited and reduced to at most 10 points per second. The api will write a warning to the console to inform you have hit your limit in this case.
+You can check to see if you've hit your limit by calling .ready() on your kai api instance; if you still have room for more increments, it will return true.
 
 ## Internal Development
 
