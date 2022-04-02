@@ -26,6 +26,7 @@ const main = async () {
 ### Minimal HTML + Script Tag Example
 
 You can also access the API via a script tag.
+
 ```
 <html>
   <body>
@@ -59,14 +60,27 @@ you must have your Kaipod running and logged in.
 
 ### Counters
 
-Currently the shared Kaimerra exposes an API for counters. There are a set of methods that allow you 
+Currently the shared Kaimerra exposes an API for counters. There are a set of methods that allow you
 to get the values of counters and set them.
 
 ```
 // Getting the current value of a counter:
 kai.getCounter("fire"); // returns a number.
 
+// Updating a counter:
+kai.incrementCounter("fire", 100); // adds 100 to the value of fire.
+
+// Subscribing to events:
+kai.on("any", counters) {
+  // counters is a Map<string, number> containing updated values.
+  if (counters.has("fire")) {
+    console.log("Fire's new value is", counters.get("fire"));
+  }
+}
+```
+
 ## Internal Development
+
 ### To publish
 
 1. npm run build
