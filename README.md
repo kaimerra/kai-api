@@ -1,7 +1,31 @@
 # Kai-API
 
-## Minimal HTML + Script Tag Example
+## Getting the API.
 
+### NPM
+
+You can access the api via npm:
+
+install...
+`npm install @kaimerra-corp/kai-api`
+
+in your code...later
+
+```
+// import Kai
+import { Kai } from "@kaimerra-corp/kai-api/dist/index";
+
+// in some async function
+const main = async () {
+  const kai = await Kai.createForBrowser();
+
+  // use the new kai object to do awesome things!
+}
+```
+
+### Minimal HTML + Script Tag Example
+
+You can also access the API via a script tag.
 ```
 <html>
   <body>
@@ -9,14 +33,16 @@
     <script>
       (async () => {
         const kai = await Kai.Kai.createForBrowser();
-        console.log(kai.getCounter("0"));
+
+        // use the new kai object to do awesome things!
       })();
     </script>
   </body>
 </html>
 ```
 
-## To publish
+## Internal Development
+### To publish
 
 1. npm run build
 2. npm run rollup
